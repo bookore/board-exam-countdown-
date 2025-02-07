@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Board Exam Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #0f172a;
+            --primary-light: #1e293b;
+            --accent: #3b82f6;
+            --accent-light: #60a5fa;
+            --success: #059669;
+            --warning: #ea580c;
+            --danger: #dc2626;
+            --text-primary: #0f172a;
+            --text-secondary: #475569;
+            --text-tertiary: #64748b;
+            --bg-primary: #f8fafc;
+            --bg-secondary: #f1f5f9;
+            --border-color: #e2e8f0;
+            --card-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --card-shadow-hover: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.5;
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .header-section {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .logo {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 1rem;
+            background: var(--primary);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+        }
+
+        .dashboard-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.75rem;
+            letter-spacing: -0.025em;
+        }
+
+        .dashboard-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.125rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .overview-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .stat-title {
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .stat-value {
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-trend {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up { color: var(--success); }
+        .trend-down { color: var(--danger); }
+
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .exam-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: var(--card-shadow);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .exam-card.expanded {
+            transform: translateY(-4px);
+            box-shadow: var(--card-shadow-hover);
+        }
+
+        .chapter-list {
+            display: none;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .exam-card.expanded .chapter-list {
+            display: block;
+        }
+
+        .chapter-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: white;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+        }
+
+        .chapter-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .chapter-checkbox {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .chapter-checkbox:checked {
+            background: var(--accent);
+        }
+
+        .chapter-checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            color: white;
+            font-size: 14px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .chapter-name {
+            flex: 1;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+        }
+
+        .progress-bar {
+            height: 6px;
+            background: var(--bg-secondary);
+            border-radius: 3px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            transition: width 0.3s ease;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            color: var(--text-tertiary);
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .card-header {
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .subject-icon {
+            width: 48px;
+            height: 48px;
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            color: var(--accent);
+            transition: all 0.3s ease;
+        }
+
+        .exam-card:hover .subject-icon {
+            background: var(--accent);
+            color: white;
+        }
+
+        .subject-info h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .date {
+            color: var(--text-tertiary);
+            font-size: 0.875rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .card-content {
+            padding: 1.5rem;
+        }
+
+        .countdown-section {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .time-remaining {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent);
+            line-height: 1;
+            margin-bottom: 0.5rem;
+            font-feature-settings: "tnum";
+            font-variant-numeric: tabular-nums;
+        }
+
+        .time-label {
+            font-size: 0.75rem;
+            color: var(--text-tertiary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.75rem;
+        }
+
+        .hours-remaining {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            gap: 0.375rem;
+        }
+
+        .status-urgent {
+            background: #fef2f2;
+            color: var(--danger);
+        }
+
+        .status-upcoming {
+            background: #eff6ff;
+            color: var(--accent);
+        }
+
+        .urgent .time-remaining {
+            color: var(--danger);
+        }
+
+        .urgent .progress {
+            background: linear-gradient(90deg, var(--danger), #ef4444);
+        }
+
+        .insights-section {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: var(--card-shadow);
+            margin-top: 2rem;
+        }
+
+        .insights-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .insights-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .quote {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            font-style: italic;
+            position: relative;
+            padding: 0 2rem;
+            text-align: center;
+        }
+
+        .quote::before,
+        .quote::after {
+            content: '"';
+            position: absolute;
+            font-size: 3rem;
+            color: var(--border-color);
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .quote::before {
+            left: 0;
+            top: -0.5rem;
+        }
+
+        .quote::after {
+            right: 0;
+            bottom: -1.5rem;
+        }
+
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        @media (max-width: 768px) {
+            .dashboard {
+                padding: 1rem;
+            }
+
+            .dashboard-title {
+                font-size: 2rem;
+            }
+
+            .exam-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1.25rem;
+            }
+        }
+
+        .dashboard-controls {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .control-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .storage-error {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--danger);
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            animation: slideIn 0.3s ease;
+        }
+
+        .error-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .error-content button {
+            background: white;
+            color: var(--danger);
+            border: none;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="header-section">
+            <div class="logo">
+                <i class="fas fa-graduation-cap"></i>
+            </div>
+            <h1 class="dashboard-title">Board Exam Dashboard</h1>
+            <p class="dashboard-subtitle">Comprehensive overview of your upcoming board examinations</p>
+            <div class="dashboard-controls">
+                <button onclick="storageManager.exportData()" class="control-btn">
+                    <i class="fas fa-download"></i> Backup Progress
+                </button>
+                <label class="control-btn">
+                    <i class="fas fa-upload"></i> Restore Progress
+                    <input type="file" accept=".json" style="display: none;" 
+                        onchange="storageManager.importData(this.files[0]).then(() => location.reload())">
+                </label>
+            </div>
+        </div>
+
+        <div class="overview-stats">
+            <div class="stat-card">
+                <div class="stat-title">Total Exams</div>
+                <div class="stat-value">5</div>
+                <div class="stat-trend">
+                    <i class="fas fa-check-circle"></i>
+                    All exams scheduled
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Next Exam</div>
+                <div class="stat-value">Physics</div>
+                <div class="stat-trend trend-up">
+                    <i class="fas fa-clock"></i>
+                    In 14 days
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Exam Period</div>
+                <div class="stat-value">40</div>
+                <div class="stat-trend">
+                    <i class="fas fa-calendar-alt"></i>
+                    Days total
+                </div>
+            </div>
+        </div>
+        
+        <div class="exam-grid" id="examContainer"></div>
+        
+        <div class="insights-section">
+            <div class="insights-header">
+                <div class="insights-title">Daily Motivation</div>
+                <i class="fas fa-lightbulb" style="color: var(--accent);"></i>
+            </div>
+            <div class="quote" id="motivation"></div>
+        </div>
+    </div>
+
+    <script>
+        const subjects = {
+            Physics: {
+                chapters: [
+                    "Electric Charges and Fields",
+                    "Electrostatic Potential and Capacitance",
+                    "Current Electricity",
+                    "Moving Charges and Magnetism",
+                    "Magnetism and Matter",
+                    "Electromagnetic Induction",
+                    "Alternating Current",
+                    "Electromagnetic Waves",
+                    "Ray Optics",
+                    "Wave Optics",
+                    "Dual Nature of Radiation and Matter",
+                    "Atoms",
+                    "Nuclei",
+                    "Semiconductor Electronics"
+                ]
+            },
+            Chemistry: {
+                chapters: [
+                    "Solutions",
+                    "Electrochemistry",
+                    "Chemical Kinetics",
+                    "The d and f Block Elements",
+                    "Coordination Compounds",
+                    "Haloalkanes and Haloarenes",
+                    "Alcohols, Phenols and Ethers",
+                    "Aldehydes, Ketones and Carboxylic Acids",
+                    "Amines",
+                    "Biomolecules"
+                ]
+            },
+            Mathematics: {
+                chapters: [
+                    "Relations and Functions",
+                    "Inverse Trigonometric Functions",
+                    "Matrices",
+                    "Determinants",
+                    "Continuity and Differentiability",
+                    "Applications of Derivatives",
+                    "Integrals",
+                    "Applications of Integrals",
+                    "Differential Equations",
+                    "Vector Algebra",
+                    "Three Dimensional Geometry",
+                    "Linear Programming",
+                    "Probability"
+                ]
+            },
+            EnglishCore: {
+                chapters: [
+                    "THE LAST LESSON",
+                    "LOST SPRING",
+                    "DEEP WATER",
+                    "THE RATTRAP",
+                    "INDIGO",
+                    "POETS AND PANCAKES",
+                    "THE INTERVIEW PART I",
+                    "THE INTERVIEW PART II",
+                    "GOING PLACES",
+                    "MY MOTHER AT SIXTY-SIX",
+                    "KEEPING QUIET",
+                    "A THING OF BEAUTY",
+                    "A ROADSIDE STAND",
+                    "AUNT JENNIFER'S TIGERS",
+                    "The Third Level",
+                    "The Tiger King",
+                    "Journey to the end of the Earth",
+                    "The Enemy",
+                    "On the face of It",
+                    "Memories of Childhood"
+                ]
+            },
+            Painting: {
+                chapters: [
+                    "The Manuscript Painting Tradition",
+                    "The Rajasthani Schools of Painting",
+                    "The Mughal School of Miniature Painting",
+                    "The Deccani Schools of Painting",
+                    "The Pahari Schools of Painting",
+                    "The Bengal School and Cultural Nationalism",
+                    "The Modern Indian Art",
+                    "The Living Art Traditions of India"
+                ]
+            }
+        };
+
+        const examDates = {
+            Physics: '2025-02-21T09:00:00+05:30',
+            Chemistry: '2025-02-27T09:00:00+05:30',
+            Mathematics: '2025-03-08T09:00:00+05:30',
+            EnglishCore: '2025-03-11T09:00:00+05:30',
+            Painting: '2025-03-18T09:00:00+05:30'
+        };
+
+        const motivationalQuotes = [
+            "Success is not final, failure is not fatal: it is the courage to continue that counts.",
+            "The future depends on what you do today.",
+            "Believe you can and you're halfway there.",
+            "Your time is limited, don't waste it living someone else's life.",
+            "The only way to do great work is to love what you do."
+        ];
+
+        // Storage key constants
+        const STORAGE_KEY = 'boardExamProgress';
+        const LAST_SYNC_KEY = 'lastSync';
+
+        // Storage Manager Class
+        class StorageManager {
+            constructor() {
+                this.data = this.loadFromStorage() || {};
+                this.initializeSubjects();
+            }
+
+            // Initialize empty progress for subjects if not exists
+            initializeSubjects() {
+                Object.keys(subjects).forEach(subject => {
+                    if (!this.data[subject]) {
+                        this.data[subject] = {
+                            chapters: {},
+                            lastUpdated: new Date().toISOString()
+                        };
+                    }
+                });
+                this.saveToStorage();
+            }
+
+            // Load data from localStorage
+            loadFromStorage() {
+                try {
+                    const stored = localStorage.getItem(STORAGE_KEY);
+                    return stored ? JSON.parse(stored) : null;
+                } catch (error) {
+                    console.error('Error loading data:', error);
+                    return null;
+                }
+            }
+
+            // Save data to localStorage
+            saveToStorage() {
+                try {
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
+                    localStorage.setItem(LAST_SYNC_KEY, new Date().toISOString());
+                } catch (error) {
+                    console.error('Error saving data:', error);
+                    this.showStorageError();
+                }
+            }
+
+            // Update chapter progress
+            updateChapterProgress(subject, chapterIndex, completed) {
+                if (!this.data[subject]) {
+                    this.data[subject] = { chapters: {}, lastUpdated: new Date().toISOString() };
+                }
+                this.data[subject].chapters[chapterIndex] = completed;
+                this.data[subject].lastUpdated = new Date().toISOString();
+                this.saveToStorage();
+            }
+
+            // Get subject progress
+            getSubjectProgress(subject) {
+                if (!this.data[subject]) return { chapters: {}, lastUpdated: new Date().toISOString() };
+                return this.data[subject];
+            }
+
+            // Calculate subject completion percentage
+            getSubjectCompletionPercentage(subject) {
+                const progress = this.getSubjectProgress(subject);
+                const completedChapters = Object.values(progress.chapters).filter(Boolean).length;
+                const totalChapters = subjects[subject].chapters.length;
+                return Math.round((completedChapters / totalChapters) * 100);
+            }
+
+            // Export data as JSON file
+            exportData() {
+                const dataStr = JSON.stringify(this.data, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `board-exam-progress-${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            // Import data from JSON file
+            importData(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const importedData = JSON.parse(e.target.result);
+                            this.data = importedData;
+                            this.saveToStorage();
+                            resolve();
+                        } catch (error) {
+                            reject(error);
+                        }
+                    };
+                    reader.onerror = reject;
+                    reader.readAsText(file);
+                });
+            }
+
+            // Show storage error message
+            showStorageError() {
+                const errorDiv = document.createElement('div');
+                errorDiv.className = 'storage-error';
+                errorDiv.innerHTML = `
+                    <div class="error-content">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <p>Unable to save progress. Your browser storage might be full or restricted.</p>
+                        <button onclick="storageManager.exportData()">Download Backup</button>
+                    </div>
+                `;
+                document.body.appendChild(errorDiv);
+                setTimeout(() => errorDiv.remove(), 5000);
+            }
+        }
+
+        // Initialize storage manager
+        const storageManager = new StorageManager();
+
+        function createExamCards() {
+            const examGrid = document.querySelector('.exam-grid');
+            examGrid.innerHTML = '';
+
+            Object.entries(examDates).forEach(([subject, date]) => {
+                const card = document.createElement('div');
+                card.className = 'exam-card';
+                card.setAttribute('data-subject', subject);
+                
+                const progress = storageManager.getSubjectProgress(subject);
+                const progressPercentage = storageManager.getSubjectCompletionPercentage(subject);
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="subject-icon">
+                            <i class="${getSubjectIcon(subject)}"></i>
+                        </div>
+                        <div class="subject-info">
+                            <h2>${subject}</h2>
+                            <div class="date">
+                                <i class="far fa-calendar"></i>
+                                ${formatDate(date)}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-content">
+                        <div class="countdown-section">
+                            <div class="time-remaining" data-date="${date}">
+                                Calculating...
+                            </div>
+                            <div class="time-label">Days Remaining</div>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${progressPercentage}%"></div>
+                        </div>
+                        <div class="progress-text">${progressPercentage}% Complete</div>
+                    </div>
+                    <div class="chapter-list">
+                        ${subjects[subject].chapters.map((chapter, index) => `
+                            <div class="chapter-item">
+                                <input type="checkbox" class="chapter-checkbox" 
+                                    data-subject="${subject}" 
+                                    data-chapter="${index}"
+                                    ${progress.chapters[index] ? 'checked' : ''}>
+                                <span class="chapter-name">${chapter}</span>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('chapter-checkbox')) {
+                        e.stopPropagation();
+                        const subject = e.target.dataset.subject;
+                        const chapterIndex = e.target.dataset.chapter;
+                        storageManager.updateChapterProgress(subject, chapterIndex, e.target.checked);
+                        updateProgress(card, subject);
+                    } else {
+                        card.classList.toggle('expanded');
+                    }
+                });
+
+                examGrid.appendChild(card);
+            });
+        }
+
+        function updateProgress(card, subject) {
+            const progressPercentage = storageManager.getSubjectCompletionPercentage(subject);
+            card.querySelector('.progress-fill').style.width = `${progressPercentage}%`;
+            card.querySelector('.progress-text').textContent = `${progressPercentage}% Complete`;
+        }
+
+        function getSubjectIcon(subject) {
+            switch(subject) {
+                case 'Physics':
+                    return 'fas fa-atom';
+                case 'Chemistry':
+                    return 'fas fa-flask';
+                case 'Mathematics':
+                    return 'fas fa-square-root-alt';
+                case 'EnglishCore':
+                    return 'fas fa-book';
+                case 'Painting':
+                    return 'fas fa-palette';
+                default:
+                    return 'fas fa-book';
+            }
+        }
+
+        function formatDate(date) {
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            return new Date(date).toLocaleDateString('en-US', options);
+        }
+
+        function updateCountdowns() {
+            const now = new Date();
+            const cards = document.querySelectorAll('.exam-card');
+            
+            cards.forEach(card => {
+                const subject = card.getAttribute('data-subject');
+                const examDate = new Date(examDates[subject]);
+                const timeRemaining = examDate - now;
+
+                // Calculate days
+                const days = Math.floor(timeRemaining / (1000 * 60 * 60 * 24));
+
+                // Format the date
+                const formattedDate = formatDate(examDate);
+                const dateElement = card.querySelector('.date');
+                if (dateElement) {
+                    dateElement.innerHTML = `<i class="far fa-calendar"></i> ${formattedDate}`;
+                }
+
+                // Update countdown section
+                const countdownSection = card.querySelector('.countdown-section');
+                if (countdownSection) {
+                    const isUrgent = days <= 7;
+                    countdownSection.className = `countdown-section ${isUrgent ? 'urgent' : ''}`;
+                    
+                    countdownSection.innerHTML = `
+                        <div class="time-remaining">
+                            ${days} Days
+                        </div>
+                        <div class="time-label">Until Exam</div>
+                        <div class="status-badge ${isUrgent ? 'status-urgent' : 'status-upcoming'}">
+                            <i class="fas ${isUrgent ? 'fa-exclamation-circle' : 'fa-clock'}"></i>
+                            ${isUrgent ? 'Urgent' : 'Upcoming'}
+                        </div>
+                    `;
+                }
+            });
+
+            // Update overview stats
+            updateOverviewStats(now);
+        }
+
+        function updateOverviewStats(now) {
+            const nextExam = Object.entries(examDates).find(([subject, date]) => new Date(date) > now);
+            const remainingExams = Object.entries(examDates).filter(([subject, date]) => new Date(date) > now).length;
+            
+            document.querySelector('.stat-value:nth-child(2)').textContent = remainingExams;
+            if (nextExam) {
+                const nextExamElement = document.querySelector('.stat-card:nth-child(2) .stat-value');
+                const daysUntilNext = Math.ceil((new Date(nextExam[1]) - now) / (1000 * 60 * 60 * 24));
+                nextExamElement.textContent = nextExam[0];
+                nextExamElement.nextElementSibling.innerHTML = `
+                    <i class="fas fa-clock"></i>
+                    In ${daysUntilNext} days
+                `;
+            }
+        }
+
+        function updateMotivationalQuote() {
+            const motivationElement = document.getElementById('motivation');
+            const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+            motivationElement.textContent = randomQuote;
+        }
+
+        // Initialize the countdown
+        createExamCards();
+        updateCountdowns(); // Update immediately
+        setInterval(updateCountdowns, 3600000); // Update every hour since we're only showing days
+        updateMotivationalQuote();
+        
+        // Update motivational quote every hour
+        setInterval(updateMotivationalQuote, 3600000);
+    </script>
+</body>
+</html>
