@@ -452,6 +452,170 @@
             from { transform: translateX(100%); }
             to { transform: translateX(0); }
         }
+
+        .expected-marks,
+        .status-selection {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+        }
+
+        .expected-marks label,
+        .status-selection label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-right: 0.5rem;
+        }
+
+        .expected-marks input,
+        .status-selection select {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 150px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .expected-marks input:focus,
+        .status-selection select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .status-selection {
+            margin-left: 1rem;
+            position: relative;
+        }
+
+        .status-selection select {
+            padding: 0.5rem;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 150px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            background-color: #ffffff;
+            color: var(--text-primary);
+            appearance: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 10 10"><polygon points="0,0 10,0 5,5" fill="%23333"/></svg>');
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            transition: border-color 0.3s ease, background-color 0.3s ease;
+        }
+
+        .status-selection select:focus {
+            outline: none;
+            border-color: var(--accent);
+            background-color: #f0f8ff;
+        }
+
+        .status-selection select:hover {
+            border-color: var(--accent-light);
+        }
+
+        .status-selection select option {
+            padding: 0.5rem;
+            background-color: white;
+            color: var(--text-primary);
+        }
+
+        .status-selection select option:hover {
+            background-color: var(--accent-light);
+            color: white;
+        }
+
+        .countdown-section.done {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 2px solid #c3e6cb;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .countdown-section.done:hover {
+            transform: scale(1.02);
+        }
+
+        .countdown-section.done .time-remaining {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .countdown-section.done .time-label {
+            font-size: 1.2rem;
+            margin-top: 0.5rem;
+            font-style: italic;
+        }
+
+        .countdown-section.done .status-badge {
+            background-color: #c3e6cb;
+            color: #155724;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: inline-block;
+            margin-top: 0.5rem;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s;
+        }
+
+        .countdown-section.done .status-badge:hover {
+            background-color: #a3d9a5;
+        }
+
+        .expected-marks,
+        .total-marks,
+        .percentage-display {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            gap: 0.5rem; /* Space between label and input */
+        }
+
+        .expected-marks label,
+        .total-marks label,
+        .percentage-display strong {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            flex: 1; /* Allow labels to take equal space */
+        }
+
+        .expected-marks input,
+        .total-marks input {
+            padding: 0.5rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            width: 100%;
+            max-width: 120px; /* Adjusted width for better alignment */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            transition: border-color 0.3s ease;
+        }
+
+        .expected-marks input:focus,
+        .total-marks input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .percentage-display {
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-left: 1rem; /* Space between input and percentage display */
+        }
+
+        .percentage-display span {
+            font-size: 1.2rem; /* Larger font for percentage */
+            color: var(--success); /* Color for percentage */
+        }
     </style>
 </head>
 <body>
@@ -463,14 +627,15 @@
             <h1 class="dashboard-title">Board Exam Dashboard</h1>
             <p class="dashboard-subtitle">Comprehensive overview of your upcoming board examinations</p>
             <div class="dashboard-controls">
-                <button onclick="storageManager.exportData()" class="control-btn">
+                <!-- Remove the backup and restore buttons -->
+                <!-- <button onclick="storageManager.exportData()" class="control-btn">
                     <i class="fas fa-download"></i> Backup Progress
                 </button>
                 <label class="control-btn">
                     <i class="fas fa-upload"></i> Restore Progress
                     <input type="file" accept=".json" style="display: none;" 
                         onchange="storageManager.importData(this.files[0]).then(() => location.reload())">
-                </label>
+                </label> -->
             </div>
         </div>
 
@@ -634,7 +799,9 @@
                     if (!this.data[subject]) {
                         this.data[subject] = {
                             chapters: {},
-                            lastUpdated: new Date().toISOString()
+                            lastUpdated: new Date().toISOString(),
+                            expectedMarks: null, // Initialize expected marks
+                            status: 'Average' // Initialize status
                         };
                     }
                 });
@@ -685,6 +852,36 @@
                 const completedChapters = Object.values(progress.chapters).filter(Boolean).length;
                 const totalChapters = subjects[subject].chapters.length;
                 return Math.round((completedChapters / totalChapters) * 100);
+            }
+
+            // Update expected marks
+            updateExpectedMarks(subject, marks) {
+                if (!this.data[subject]) {
+                    this.data[subject] = { chapters: {}, lastUpdated: new Date().toISOString(), expectedMarks: marks };
+                } else {
+                    this.data[subject].expectedMarks = marks;
+                }
+                this.saveToStorage();
+            }
+
+            // Get expected marks
+            getExpectedMarks(subject) {
+                return this.data[subject] ? this.data[subject].expectedMarks : null;
+            }
+
+            // Update status
+            updateStatus(subject, status) {
+                if (!this.data[subject]) {
+                    this.data[subject] = { chapters: {}, lastUpdated: new Date().toISOString(), status: status };
+                } else {
+                    this.data[subject].status = status;
+                }
+                this.saveToStorage();
+            }
+
+            // Get status
+            getStatus(subject) {
+                return this.data[subject] ? this.data[subject].status : 'Average';
             }
 
             // Export data as JSON file
@@ -750,6 +947,9 @@
                 
                 const progress = storageManager.getSubjectProgress(subject);
                 const progressPercentage = storageManager.getSubjectCompletionPercentage(subject);
+                const expectedMarks = storageManager.getExpectedMarks(subject);
+                const totalMarks = storageManager.getExpectedMarks(subject) || 100; // Default to 100 if not set
+                const percentage = expectedMarks ? ((expectedMarks / totalMarks) * 100).toFixed(2) : 0;
 
                 card.innerHTML = `
                     <div class="card-header">
@@ -775,19 +975,60 @@
                             <div class="progress-fill" style="width: ${progressPercentage}%"></div>
                         </div>
                         <div class="progress-text">${progressPercentage}% Complete</div>
-                    </div>
-                    <div class="chapter-list">
-                        ${subjects[subject].chapters.map((chapter, index) => `
-                            <div class="chapter-item">
-                                <input type="checkbox" class="chapter-checkbox" 
-                                    data-subject="${subject}" 
-                                    data-chapter="${index}"
-                                    ${progress.chapters[index] ? 'checked' : ''}>
-                                <span class="chapter-name">${chapter}</span>
-                            </div>
-                        `).join('')}
+                        <div class="expected-marks">
+                            <label for="expectedMarks-${subject}">Expected Marks:</label>
+                            <input type="number" id="expectedMarks-${subject}" placeholder="Enter expected marks" value="${expectedMarks || ''}" />
+                        </div>
+                        <div class="total-marks">
+                            <label for="totalMarks-${subject}">Total Marks:</label>
+                            <input type="number" id="totalMarks-${subject}" value="${totalMarks}" />
+                        </div>
+                        <div class="percentage-display">
+                            <strong>Percentage:</strong> <span id="percentage-${subject}">${percentage}%</span>
+                        </div>
+                        <div class="status-selection">
+                            <label for="status-${subject}">Status:</label>
+                            <select id="status-${subject}">
+                                <option value="Good" ${status === 'Good' ? 'selected' : ''}>Good</option>
+                                <option value="Average" ${status === 'Average' ? 'selected' : ''}>Average</option>
+                                <option value="Bad" ${status === 'Bad' ? 'selected' : ''}>Bad</option>
+                            </select>
+                        </div>
+                        <div class="chapter-list">
+                            ${subjects[subject].chapters.map((chapter, index) => `
+                                <div class="chapter-item">
+                                    <input type="checkbox" class="chapter-checkbox" 
+                                        data-subject="${subject}" 
+                                        data-chapter="${index}"
+                                        ${progress.chapters[index] ? 'checked' : ''}>
+                                    <span class="chapter-name">${chapter}</span>
+                                </div>
+                            `).join('')}
+                        </div>
                     </div>
                 `;
+
+                // Add event listener for expected marks input
+                const expectedMarksInput = card.querySelector(`#expectedMarks-${subject}`);
+                expectedMarksInput.addEventListener('input', (e) => {
+                    const marks = e.target.value;
+                    storageManager.updateExpectedMarks(subject, marks);
+                    updatePercentage(subject, marks, totalMarks);
+                });
+
+                // Add event listener for total marks input
+                const totalMarksInput = card.querySelector(`#totalMarks-${subject}`);
+                totalMarksInput.addEventListener('input', (e) => {
+                    const totalMarksValue = e.target.value;
+                    updatePercentage(subject, expectedMarks, totalMarksValue);
+                });
+
+                // Add event listener for status selection
+                const statusSelect = card.querySelector(`#status-${subject}`);
+                statusSelect.addEventListener('change', (e) => {
+                    const selectedStatus = e.target.value;
+                    storageManager.updateStatus(subject, selectedStatus);
+                });
 
                 card.addEventListener('click', (e) => {
                     if (e.target.classList.contains('chapter-checkbox')) {
@@ -855,19 +1096,33 @@
                 // Update countdown section
                 const countdownSection = card.querySelector('.countdown-section');
                 if (countdownSection) {
-                    const isUrgent = days <= 7;
-                    countdownSection.className = `countdown-section ${isUrgent ? 'urgent' : ''}`;
-                    
-                    countdownSection.innerHTML = `
-                        <div class="time-remaining">
-                            ${days} Days
-                        </div>
-                        <div class="time-label">Until Exam</div>
-                        <div class="status-badge ${isUrgent ? 'status-urgent' : 'status-upcoming'}">
-                            <i class="fas ${isUrgent ? 'fa-exclamation-circle' : 'fa-clock'}"></i>
-                            ${isUrgent ? 'Urgent' : 'Upcoming'}
-                        </div>
-                    `;
+                    if (days < 0) {
+                        countdownSection.className = `countdown-section done`;
+                        countdownSection.innerHTML = `
+                            <div class="time-remaining">
+                                Done
+                            </div>
+                            <div class="time-label">Exam Completed</div>
+                            <div class="status-badge status-upcoming">
+                                <i class="fas fa-check-circle"></i>
+                                Done
+                            </div>
+                        `;
+                    } else {
+                        const isUrgent = days <= 7;
+                        countdownSection.className = `countdown-section ${isUrgent ? 'urgent' : ''}`;
+                        
+                        countdownSection.innerHTML = `
+                            <div class="time-remaining">
+                                ${days} Days
+                            </div>
+                            <div class="time-label">Until Exam</div>
+                            <div class="status-badge ${isUrgent ? 'status-urgent' : 'status-upcoming'}">
+                                <i class="fas ${isUrgent ? 'fa-exclamation-circle' : 'fa-clock'}"></i>
+                                ${isUrgent ? 'Urgent' : 'Upcoming'}
+                            </div>
+                        `;
+                    }
                 }
             });
 
@@ -895,6 +1150,12 @@
             const motivationElement = document.getElementById('motivation');
             const randomQuote = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
             motivationElement.textContent = randomQuote;
+        }
+
+        function updatePercentage(subject, expectedMarks, totalMarks) {
+            const percentageDisplay = document.getElementById(`percentage-${subject}`);
+            const percentage = expectedMarks ? ((expectedMarks / totalMarks) * 100).toFixed(2) : 0;
+            percentageDisplay.textContent = `${percentage}%`;
         }
 
         // Initialize the countdown
